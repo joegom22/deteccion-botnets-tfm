@@ -1,2 +1,38 @@
-# deteccion-botnets-tfm
-Trabajo de Fin de Máster sobre Detección de Botnets para el Máster en Internet de las Cosas de la UCM
+# Detección de Botnets en Redes IoT
+## Trabajo de Fin de Máster sobre Detección de Botnets para el Máster en Internet de las Cosas de la UCM
+
+---
+#### title: "Detección de Botnets en Redes IoT"
+#### author: "Joel Gómez Santos"
+#### tutor: "Pablo Cerro Cañizares"
+#### date: "2024-11-19"
+---
+
+#### Índice {-}
+
+1. [Introducción](#introducción)
+2. [Objetivos](#objetivos)
+3. [Metodología](#metodología)
+4. [Resultados](#resultados)
+5. [Conclusiones](#conclusiones)
+
+#### Introducción {-}
+
+El trabajo pretende desarrollar y analizar diversos métodos de detección de botnets en redes de internet de las cosas. </br>
+Realizar pruebas masivas de los métodos en redes de IoT simuladas y estudiar en qué casos unos métodos son más efectivos que otros. </br>
+Además, se podría hacer un análisis de contramedidas una vez detectadas las redes de bots.
+
+#### Objetivos {-}
+
+Los objetivos principales del proyecto son:
+
+1. Comprender la amenaza que suponen las botnets en las Redes IoT.
+2. Desarrollar e implementar métodos de detección de botnets en Redes IoT simuladas.
+3. Estudiar la performance de los métodos y cuándo alguno de ellos es mejor que otro.
+4. Estudiar posibles contramedidas tras detectar una botnet. (Opcional)
+
+#### Metodología {-}
+
+#### Resultados {-}
+
+#### Conclusiones {-}
