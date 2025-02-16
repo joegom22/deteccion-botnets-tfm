@@ -14,13 +14,7 @@ tipos de posibles botnets.
 
 - [Introducción](#intro)
 - [Objetivos](#obj)
-- [Deployment](#deployment)
-- [Usage](#usage)
-- [Built Using](#built_using)
-- [TODO](../TODO.md)
-- [Contributing](../CONTRIBUTING.md)
-- [Authors](#authors)
-- [Acknowledgments](#acknowledgement)
+- [Estructura](#estruct)
 
 ## Introducción <a name = "intro"></a>
 
@@ -40,24 +34,24 @@ Los objetivos principales del proyecto son:
   - Estudiar la performance de los métodos y cuándo alguno de ellos es mejor que otro.
   - Estudiar posibles contramedidas tras detectar una botnet. (Opcional)
 
-## Estructura
+## Estructura <a name = "estruct"></a>
 Para lograr los objetivos mencionados se seguirá la siguiente estructura:
-1. Introducción
-  1.1. Motivación
-  1.2. Objetivos
-  1.3. Plan de Trabajo
-2. Estado del Arte
-  2.1. Conceptos Fundamentales
-    2.1.1. Botnets
-    2.1.2. Mirai
-    2.1.3. Aprendizaje Automático
-3. Implementación de técnicas de detección
-  3.1. Análisis del tráfico
-    3.1.1. Patrones
-  3.2. Machine Learning
-    3.2.1. Supervisados
-    3.2.2. No supervisados
-    3.2.3. Redes convolucionales temporales
+1. Introducción <br>
+  1.1. Motivación <br>
+  1.2. Objetivos <br>
+  1.3. Plan de Trabajo <br>
+2. Estado del Arte <br>
+  2.1. Conceptos Fundamentales <br>
+    2.1.1. Botnets <br>
+    2.1.2. Mirai <br>
+    2.1.3. Aprendizaje Automático <br>
+3. Implementación de técnicas de detección <br>
+  3.1. Análisis del tráfico <br>
+    3.1.1. Patrones <br>
+  3.2. Machine Learning <br>
+    3.2.1. Supervisados <br>
+    3.2.2. No supervisados <br>
+    3.2.3. Redes convolucionales temporales <br>
 4. Tests masivos de los métodos de detección
 5. Análisis de resultados
 6. Conclusiones
