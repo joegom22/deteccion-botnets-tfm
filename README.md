@@ -1,60 +1,64 @@
-# Detección de Botnets en Redes IoT
-## Trabajo de Fin de Máster sobre Detección de Botnets para el Máster en Internet de las Cosas de la UCM
+<h3 align="center">Detección de Botnets en Redes IoT Utilizando Técnicas
+de Aprendizaje Automático</h3>
+
 
 ---
-#### title: "Detección de Botnets en Redes IoT"
-#### author: "Joel Gómez Santos"
-#### tutor: "Pablo Cerro Cañizares"
-#### date: "2024-11-19"
----
 
-#### Índice {-}
+<p align="center"> En este trabajo se estudiarán e implementarán diferentes modelos de aprendizaje au-
+tomático para comprobar cuáles de ellos son los más apropiados para detectar los distintos
+tipos de posibles botnets.
+    <br> 
+</p>
 
-1. [Introducción](#introducción)
-2. [Objetivos y Estructura](#objetivosyestructura)
-3. [Metodología](#metodología)
-4. [Resultados](#resultados)
-5. [Conclusiones](#conclusiones)
+## 📝 Table of Contents
 
-#### Introducción {-}
+- [Introducción](#intro)
+- [Objetivos](#obj)
+- [Deployment](#deployment)
+- [Usage](#usage)
+- [Built Using](#built_using)
+- [TODO](../TODO.md)
+- [Contributing](../CONTRIBUTING.md)
+- [Authors](#authors)
+- [Acknowledgments](#acknowledgement)
 
-El trabajo pretende desarrollar y analizar diversos métodos de detección de botnets en redes de internet de las cosas. </br>
-Realizar pruebas masivas de los métodos en redes de IoT simuladas y estudiar en qué casos unos métodos son más efectivos que otros. </br>
-Además, se podría hacer un análisis de contramedidas una vez detectadas las redes de bots.
+## Introducción <a name = "intro"></a>
 
-#### Objetivos y Estructura{-}
+En los últimos años, los avances en el ámbito del Internet de las Cosas y la rápida
+proliferación de dispositivos IoT han traído consigo importantes mejoras en la conectividad,
+permitiendo la automatización y el monitoreo en contextos que van desde el hogar hasta
+la industria. <br>
+Sin embargo, la propia idiosincrasia del Internet de las Cosas, en su heterogeneidad, lo
+hace un objetivo ideal para los ataques con redes de bots (Botnets). Es en este contexto
+donde aparece el aprendizaje automático como herramienta para la detección de estas
+amenazas
 
+## Objetivos <a name = "obj"></a>
 Los objetivos principales del proyecto son:
+  - Comprender la amenaza que suponen las botnets en las Redes IoT.
+  - Desarrollar e implementar métodos de detección de botnets en Redes IoT simuladas.
+  - Estudiar la performance de los métodos y cuándo alguno de ellos es mejor que otro.
+  - Estudiar posibles contramedidas tras detectar una botnet. (Opcional)
 
-1. Comprender la amenaza que suponen las botnets en las Redes IoT.
-2. Desarrollar e implementar métodos de detección de botnets en Redes IoT simuladas.
-3. Estudiar la performance de los métodos y cuándo alguno de ellos es mejor que otro.
-4. Estudiar posibles contramedidas tras detectar una botnet. (Opcional)
-
-Para ello se seguirá la siguiente estructura:
-
-1. Contexto y Motivación </br>
-   1.1 ¿Qué son las redes de bots? </br>
-   1.2 Relevancia en el IoT</br>
-   1.3 Tipos de ataques y sus consecuencias </br>
-2. Estado del Arte </br>
-   2.1 Técnicas de detección </br>
-   2.2 Casos reales </br>
-   2.3 Problemas para la detección </br>
-3. Implementación de técnicas de detección </br>
-   3.1 Análisis del tráfico </br>
-       3.1.1 Patrones </br>
-   3.2 Machine Learning </br>
-       3.2.1 Supervisados </br>
-       3.2.2 No supervisados </br>
-       3.2.3 Redes convolucionales temporales </br>
-4. Tests masivos de los métodos de detección </br>
-5. Análisis de resultados </br>
-6. Conclusiones </br>
-7. Posibles contramedidas (?) </br>
-
-#### Metodología {-}
-
-#### Resultados {-}
-
-#### Conclusiones {-}
+## Estructura
+Para lograr los objetivos mencionados se seguirá la siguiente estructura:
+1. Introducción
+  1.1. Motivación
+  1.2. Objetivos
+  1.3. Plan de Trabajo
+2. Estado del Arte
+  2.1. Conceptos Fundamentales
+    2.1.1. Botnets
+    2.1.2. Mirai
+    2.1.3. Aprendizaje Automático
+3. Implementación de técnicas de detección
+  3.1. Análisis del tráfico
+    3.1.1. Patrones
+  3.2. Machine Learning
+    3.2.1. Supervisados
+    3.2.2. No supervisados
+    3.2.3. Redes convolucionales temporales
+4. Tests masivos de los métodos de detección
+5. Análisis de resultados
+6. Conclusiones
+7. Posibles contramedidas (?) 
