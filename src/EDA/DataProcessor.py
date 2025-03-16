@@ -4,7 +4,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 class DataProcessor:
-    def __init__(self, file_path: str) -> None:
+    def __init__(self, file_path: str, attack_type: str = None) -> None:
         """
         Initialize the DataProcessor object.
 
@@ -14,6 +14,7 @@ class DataProcessor:
 
         Args:
             - file_path (str): The path to the CSV file containing the dataset to be processed.
+            - attack_type (str): The type of attack to be detected in the dataset. Defaults to "All".
 
         Attributes:
             - file_path (str): Stores the path to the dataset file.
@@ -24,6 +25,7 @@ class DataProcessor:
         self.file_path = file_path
         self.df = None
         self.outliers = {}
+        self.attack_type = attack_type if attack_type else "All"
         self.logger = logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -97,10 +99,19 @@ class DataProcessor:
 
                     self.outliers[column] = outliers.tolist()
                 elif pd.api.types.is_string_dtype(self.df[column]):
-                    logging.info(f"Using Frequency Distribution to detect outliers in categorical column {column}.")
+                    self.logger.info(f"Using Frequency Distribution to detect outliers in categorical column {column}.")
                     category_counts = self.df[column].value_counts(normalize=True)
 
-                    outlier_categories = category_counts[category_counts < 0.10].index.tolist()
+                    if self.attack_type == "DDOS":
+                        self.logger.info(f"Since attack type is DDOS, categorical outliers will be those above a threshold.")
+                        outlier_categories = category_counts[category_counts > 0.90].index.tolist()
+                    elif self.attack_type == "All":
+                        self.logger.info(f"Since attack type is All, categorical outliers will be those both below a threshold or above a threshold.")
+                        outlier_categories = category_counts[category_counts < 0.10 or category_counts > 0.90].index.tolist()
+                    else:
+                        self.logger.info(f"Since attack type is not DDOS, categorical outliers will be those below a threshold.")
+                        outlier_categories = category_counts[category_counts < 0.10].index.tolist()
+
                     if outlier_categories:
                         self.logger.info(f"Detected outlier categories in column '{column}': {outlier_categories}")
 
