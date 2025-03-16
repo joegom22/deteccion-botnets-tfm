@@ -1,5 +1,5 @@
-<h3 align="center">Detección de Botnets en Redes IoT Utilizando Técnicas
-de Aprendizaje Automático</h3>
+<h1 align="center">Detección de Botnets en Redes IoT Utilizando Técnicas
+de Aprendizaje Automático</h1>
 
 
 ---
@@ -10,7 +10,7 @@ tipos de posibles botnets.
     <br> 
 </p>
 
-## 📝 Table of Contents
+## Table of Contents
 
 - [Introducción](#intro)
 - [Objetivos](#obj)
