@@ -7,18 +7,8 @@ Este directorio contiene módulos de soporte para el análisis exploratorio de d
 ```
 /EDA
 │── DataProcessor.py       # Clase para cargar y realizar análisis de Datasets
+│── /assets                # Directorio para almacenar los gráficos relacionados con el EDA
 ```
-
-## Descripción de los Módulos
-
-### 🔹 `data_loader.py`
-- Carga el dataset desde un archivo CSV en un `pandas.DataFrame`.
-- Maneja errores en la carga de datos.
-
-### 🔹 `data_cleaning.py`
-- Realiza la limpieza básica del dataset:
-  - Elimina valores nulos.
-  - Remueve duplicados.
 
 ## Uso de los Módulos
 

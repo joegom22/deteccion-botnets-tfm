@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 from fpdf import FPDF
 import logging
@@ -19,7 +20,7 @@ class SummaryGenerator:
         self.pdf.add_page()
         self.pdf.set_font("Arial", size=16, style="B")
         self.pdf.cell(200, 10, txt=title, ln=True, align='C')
-        self.pdf.ln(10)
+        self.pdf.ln(2)
         self.logger = logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     
@@ -38,7 +39,7 @@ class SummaryGenerator:
         """
         self.pdf.set_font(font, size=size, style='')
         self.pdf.multi_cell(0, 10, text)
-        self.pdf.ln()
+        self.pdf.ln(2)
     
     def add_section_header(self, title: str) -> None:
         """
@@ -52,8 +53,31 @@ class SummaryGenerator:
         """
         self.pdf.set_font("Arial", size=18, style="B")
         self.pdf.cell(0, 10, title, ln=True, align="L")
-        self.pdf.ln()
-    
+        self.pdf.ln(2)
+
+    def add_image(self, image_path: str, caption: str = None) -> None:
+        """
+        Add an image to the PDF report, centered with a caption.
+
+        Args:
+            - image_path (str): Path to the image file.
+            - caption (str, optional): Caption to display below the image.
+        """
+        if not os.path.exists(image_path):
+            self.logger.error(f"Image not found: {image_path}")
+            return
+        
+        page_width = self.pdf.w - 20
+        max_height = 100
+        
+        self.pdf.image(image_path, x=10, w=page_width, h=max_height)
+        self.pdf.ln(5)
+        
+        if caption:
+            self.pdf.set_font("Arial", size=10, style="I")
+            self.pdf.multi_cell(0, 8, caption, align="C")
+            self.pdf.ln(5)
+
     def save_pdf(self) -> None:
         """
         Save the PDF report to the specified output path.
