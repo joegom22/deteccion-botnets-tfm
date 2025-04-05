@@ -31,7 +31,7 @@ class DataProcessor:
         self.logger = logging.getLogger(__name__)
         logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-    def load_dataset(self) -> None:
+    def load_dataset(self, file_type) -> None:
         """
         Load the dataset from the specified file into a pandas DataFrame based on the provided file type.
         
@@ -41,12 +41,12 @@ class DataProcessor:
         Raises:
             ValueError: If the provided file type is unsupported.
         """
-        if self.file_type == "csv":
+        if file_type == "csv":
             self._load_csv()
-        elif self.file_type == "zeek":
+        elif file_type == "zeek":
             self._load_zeek()
         else:
-            raise ValueError(f"Unsupported file type: {self.file_type}")
+            raise ValueError(f"Unsupported file type: {file_type}")
 
 
     def _load_csv(self) -> None:
@@ -54,7 +54,7 @@ class DataProcessor:
         Helper method to load standard CSV files into a pandas DataFrame.
         """
         try:
-            self.df = pd.read_csv(self.file_path)
+            self.df = pd.read_csv(self.file_path, header=None)
             self.logger.info(f"CSV file loaded successfully: {self.df.head()}")
         except Exception as e:
             self.logger.error(f"Error loading CSV file: {str(e)}")
@@ -98,9 +98,9 @@ class DataProcessor:
 
         self.df = df
     
-    def clean_dataset(self) -> None:
+    def clean_dataset(self, drop_nulls: bool = False) -> None:
         """
-        Clean the loaded dataset by removing null values and duplicate entries.
+        Clean the loaded dataset by removing duplicate entries and, optionally, null ones.
 
         This method performs two cleaning operations on the loaded dataset:
             1. Removes any rows with null values.
@@ -108,13 +108,42 @@ class DataProcessor:
 
         The cleaning operations are performed in-place, that is, modifying the original DataFrame.
         If no dataset has been loaded (self.df is None), a warning message is logged.
+
+        Args:
+            drop_nulls (bool): If True, remove rows with null values. Defaults to False.
         """
         if self.df is not None:
-            self.df.drop_duplicates(inplace=True)
-            self.logger.info("Dataset cleaned successfully.")
+            original_count = self.df.shape[0]
+
+            if drop_nulls:
+                self.df = self.df.dropna()
+
+            self.df = self.df.drop_duplicates()
+
+            cleaned_count = self.df.shape[0]
+            removed_rows = original_count - cleaned_count
+
+            self.logger.info(f"Dataset cleaned successfully. {removed_rows} rows have been removed.")
         else:
             self.logger.warning("No dataset has been loaded.")        
     
+    def onehot_encode_columns(self, columns: list = None, mode: str = "replace"):
+        """
+        One-hot encode specified columns in the dataset.
+
+        This method encodes categorical variables into multiple binary features,
+        creating new columns for each unique value in the specified columns.
+
+        Args:
+            columns (list): A list of column names to encode. Defaults to all categorical columns in the dataset.
+            mode (str): The mode to handle duplicate values in categorical columns. Options are "replace" (replace with a unique value) or "drop" (drop the duplicate values).
+
+        Raises:
+            ValueError: If a specified column doesn't exist in the dataset.
+        """
+        columns = [col for col in (columns if columns else self.df.select_dtypes(include=['object']).columns.tolist()) if col not in ['ts', 'uid', 'label', 'detailed-label', 'tunnel_parents']]
+
+
     def detect_outliers(self, columns: list = None) -> None:
         """
         Detect outliers in specified columns of the dataset.
@@ -129,7 +158,7 @@ class DataProcessor:
         Raises:
             ValueError: If a specified column doesn't exist in the dataset.                        
         """ 
-        columns = [col for col in (columns if columns else self.df.columns.tolist()) if col not in ['ts', 'uid', 'label', 'detailed-label']]
+        columns = [col for col in (columns if columns else self.df.columns.tolist()) if col not in ['ts', 'uid', 'label', 'detailed-label', 'tunnel_parents']]
         self.outliers_text = ""
         ddos_text = "Possible DDoS attack detected, high frequency values in columns: "
         others_text = "Possible attack detected, anomalies in columns: "
@@ -152,15 +181,17 @@ class DataProcessor:
 
                     if len(outliers) > 0:
                         others_text += f"'{column}', "
-                    #plt.figure(figsize=(8, 6))
-                    #sns.boxplot(data=self.df, x=column)
-                    #plt.title(f"Boxplot for {column} with Outliers")
-                    #plt.show()
+                    sns.boxplot(x=self.df[column])
+
+                    plt.title(f'Boxplot de la columna {column}')
+                    plt.xlabel(f'Valores de {column}')
+
+                    plt.show()
 
                 elif pd.api.types.is_string_dtype(self.df[column]):
                     self.logger.info(f"Using Frequency Distribution to detect outliers in categorical column {column}.")
                     category_counts = self.df[column].value_counts(normalize=True)
-                    self.logger.info(f"Category count for {column}: {category_counts}")
+                    #self.logger.info(f"Category count for {column}: {category_counts}")
                     if self.attack_type == "DDOS":
                         self.logger.info(f"Since attack type is DDOS, categorical outliers will be those above a threshold.")
                         outlier_categories = category_counts[category_counts > 0.90].index.tolist()
@@ -171,6 +202,16 @@ class DataProcessor:
                         self.logger.info(f"Since attack type is not DDOS, categorical outliers will be those below a threshold.")
                         outlier_categories = category_counts[category_counts < 0.10].index.tolist()
                     ddos_text += f"'{column}', "
+                    sns.barplot(x=category_counts.index, y=category_counts.values)
+
+                    # Añadir título y etiquetas
+                    plt.title(f'Frecuencias de la columna {column}')
+                    plt.xlabel('Categorías')
+                    plt.ylabel('Proporción')
+
+                    # Mostrar el gráfico
+                    plt.xticks(rotation=45)  # Opcional: rotar las etiquetas del eje x si es necesario
+                    plt.show()
                 
             else:
                 raise ValueError(f"Column '{column}' does not exist in the dataset.")
@@ -205,7 +246,7 @@ class DataProcessor:
         sns.heatmap(correlation_matrix, annot=True, cmap="coolwarm", fmt=".2f", linewidths=0.5)
 
         plt.title("Matriz de Correlación (Filtrada)")
-        plt.savefig("./src/EDA/assets/correl_matrix.png", dpi=300, bbox_inches="tight")
+        #plt.savefig("./src/EDA/assets/correl_matrix.png", dpi=300, bbox_inches="tight")
         plt.show()
 
         strong_correlations = []

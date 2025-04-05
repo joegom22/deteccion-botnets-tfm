@@ -16,8 +16,8 @@ def main(args) -> None:
     summary_generator = SummaryGenerator(args.get("output_path"), title="Exploratory Data Analysis Report")
 
     # Load dataset from CSV file
-    logging.info("Loading dataset from CSV file...")
-    data_processor.load_dataset()
+    logging.info("Loading dataset from file...")
+    data_processor.load_dataset("csv")
 
     # Clean dataset by removing null values and duplicate entries
     logging.info("Cleaning dataset...")
@@ -30,15 +30,15 @@ def main(args) -> None:
     data_processor.detect_correlation()
 
     # Generate summary report
-    summary_generator.add_section_header("Dataset Information")
-    summary_generator.add_text(f"Number of rows: {data_processor.df.shape[0]}")
-    summary_generator.add_text(f"Number of columns: {data_processor.df.shape[1]}")
-    summary_generator.add_section_header("Outlier Analysis")
-    summary_generator.add_text(data_processor.outliers_text)
-    summary_generator.add_section_header("Correlation Analysis")
-    summary_generator.add_text(data_processor.correlation_text)
-    summary_generator.add_image("./src/EDA/assets/correl_matrix.png", "Correlation matrix of the dataset")    
-    summary_generator.save_pdf()
+    #summary_generator.add_section_header("Dataset Information")
+    #summary_generator.add_text(f"Number of rows: {data_processor.df.shape[0]}")
+    #summary_generator.add_text(f"Number of columns: {data_processor.df.shape[1]}")
+    #summary_generator.add_section_header("Outlier Analysis")
+    #summary_generator.add_text(data_processor.outliers_text)
+    #summary_generator.add_section_header("Correlation Analysis")
+    #summary_generator.add_text(data_processor.correlation_text)
+    #summary_generator.add_image("./src/EDA/assets/correl_matrix.png", "Correlation matrix of the dataset")    
+    #summary_generator.save_pdf()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Perform exploratory data analysis on a CSV file.")
