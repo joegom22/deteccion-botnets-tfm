@@ -4,6 +4,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
 import re
+import random
 
 class DataProcessor:
     def __init__(self, file_path: str, attack_type: str = None) -> None:
@@ -45,6 +46,8 @@ class DataProcessor:
             self._load_csv()
         elif file_type == "zeek":
             self._load_zeek()
+        elif file_type == "txt":
+            self._load_pcapg()
         else:
             raise ValueError(f"Unsupported file type: {file_type}")
 
@@ -54,10 +57,37 @@ class DataProcessor:
         Helper method to load standard CSV files into a pandas DataFrame.
         """
         try:
-            self.df = pd.read_csv(self.file_path, header=None)
+            self.df = pd.read_csv(self.file_path, header=None, low_memory=False)
+            self.df = self.df.drop(self.df.columns[0], axis=1)
             self.logger.info(f"CSV file loaded successfully: {self.df.head()}")
         except Exception as e:
             self.logger.error(f"Error loading CSV file: {str(e)}")
+    
+    def _load_pcapg(self) -> None:
+        """
+        Helper method to load PCAPG-formatted TXT files into a pandas DataFrame.
+
+        Assumes the first line contains headers and that the file is comma-delimited.
+        """
+        try:
+            # Contar total de filas (sin cargar en memoria)
+            #with open(self.file_path, "r") as f:
+            #    total_lines = sum(1 for _ in f) - 1  # menos la cabecera
+            #    sample_size = total_lines // 40
+#
+            #if sample_size  >= total_lines:
+            #    skip = []
+            #else:
+            #    # Elegir líneas a saltar aleatoriamente (excluyendo la cabecera = línea 0)
+            #    skip = sorted(random.sample(range(1, total_lines + 1), total_lines - sample_size))
+#
+            ## Leer el archivo saltando las filas seleccionadas
+            self.df = pd.read_csv(self.file_path, sep=",", header=0, low_memory=False)
+            self.logger.info(f"PCAPG-formatted file sampled successfully: {self.df.shape[0]} rows, {self.df.shape[1]} columns.")
+    
+        except Exception as e:
+            self.logger.error(f"Error loading PCAPG sample: {str(e)}")
+
 
     def _load_zeek(self) -> None:
         """
@@ -158,7 +188,7 @@ class DataProcessor:
         Raises:
             ValueError: If a specified column doesn't exist in the dataset.                        
         """ 
-        columns = [col for col in (columns if columns else self.df.columns.tolist()) if col not in ['ts', 'uid', 'label', 'detailed-label', 'tunnel_parents']]
+        columns = [col for col in (columns if columns else self.df.columns.tolist()) if col not in ['ts', 'uid', 'label', 'detailed-label', 'tunnel_parents', 'StartTime', 'LastTime']]
         self.outliers_text = ""
         ddos_text = "Possible DDoS attack detected, high frequency values in columns: "
         others_text = "Possible attack detected, anomalies in columns: "
@@ -197,6 +227,22 @@ class DataProcessor:
                         outlier_categories = category_counts[category_counts > 0.90].index.tolist()
                     elif self.attack_type == "All":
                         self.logger.info(f"Since attack type is All, categorical outliers will be those both below a threshold or above a threshold.")
+                        if column == "SrcAddr":
+                            categorias_deseadas = [
+                                # 🦠 Infected host (botnet)
+                                "147.32.84.165",
+
+                                # ✅ Normal hosts confiables
+                                "147.32.84.170",  # Normal-V42-Stribrek
+                                "147.32.84.134",  # Normal-V42-Jist
+                                "147.32.84.164",  # Normal-V42-Grill
+
+                                # ⚠️ Normal hosts no tan confiables (pero los puedes incluir si quieres)
+                                "147.32.87.36",   # CVUT-WebServer
+                                "147.32.80.9",    # CVUT-DNS-Server
+                                "147.32.87.11",   # MatLab-Server
+                            ]
+                            category_counts = category_counts[category_counts.index.isin(categorias_deseadas)]
                         outlier_categories_high = category_counts[category_counts > 0.90].index.tolist()
                     else:
                         self.logger.info(f"Since attack type is not DDOS, categorical outliers will be those below a threshold.")
