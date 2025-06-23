@@ -1,0 +1,11 @@
+services:
+  traffic_gatherer:
+    build: ./traffic_gatherer
+    container_name: traffic_gatherer
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./shared:/app/shared
+    network_mode: "host"
+    privileged: true
+    restart: always

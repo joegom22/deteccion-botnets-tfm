@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+cicflowmeter
+requests
+pandas
+slowapi
+python-dotenv

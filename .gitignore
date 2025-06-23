@@ -1,16 +1,3 @@
-# LaTex
-*.aux
-*.log
-*.toc
-*.lof
-*.lot
-*.fls
-*.out
-*.fdb_latexmk
-*.synctex.gz
-*.bbl
-*.blg
-
 # Python
 __pycache__/
 *.pyc

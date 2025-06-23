@@ -1,5 +1,0 @@
-pandas
-seaborn
-numpy
-matplotlib
-fpdf
