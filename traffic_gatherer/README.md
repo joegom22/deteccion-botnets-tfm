@@ -1,5 +1,4 @@
 <h1 align="center">Microservice: Traffic Gatherer</h1>
----
 
 <p align="center"> Microservicio que expone una API HTTP para capturar tráfico de red durante un periodo de tiempo definido y.
   <br>
