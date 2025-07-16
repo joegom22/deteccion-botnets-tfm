@@ -142,3 +142,4 @@ def process_tshark_output(tshark_output):
     logger.info("Converted flows summary to DataFrame.")
     df.to_csv(os.path.join(OUTPUT_DIR, "flows_summary.csv"), index=False)
     logger.info("Saved flows summary to CSV.")
+    return os.path.join(OUTPUT_DIR, "flows_summary.csv")

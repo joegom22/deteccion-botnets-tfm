@@ -2,7 +2,7 @@ import subprocess
 from datetime import datetime
 import os
 import logging
-from traffic_gatherer.src.process import process_tshark_output, create_flows
+from src.process import process_tshark_output, create_flows
 
 
 OUTPUT_DIR = "/app/shared"
@@ -39,11 +39,16 @@ def gather_traffic(duration: int) -> str:
     else:
         logger.info("tshark terminó correctamente (timeout o éxito)")
         logger.info(proc.stderr.decode())
-
+    files = [pcap_file]
     os.chmod(pcap_file, 0o777)
 
     path = create_flows(pcap_file)
+    files.append(path)
 
-    process_tshark_output(path)
+    os.chmod(path, 0o777)
 
-    return pcap_file
+    path = process_tshark_output(path)
+    files.append(path)
+    os.chmod(path, 0o777)
+
+    return files

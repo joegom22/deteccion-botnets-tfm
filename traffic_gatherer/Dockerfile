@@ -3,7 +3,7 @@ FROM python:3.10-slim
 WORKDIR /gatherer
 RUN apt-get update && apt-get install -y tshark
 
-COPY ./traffic_gatherer .
+COPY . .
 
 RUN pip install --no-cache-dir -r ./requirements.txt
 

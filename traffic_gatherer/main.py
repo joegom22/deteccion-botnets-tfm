@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Request, Depends
 from pydantic import BaseModel, Field
-from traffic_gatherer.src.gather import gather_traffic
-from traffic_gatherer.src.verify import token_verification_dependency
+from src.gather import gather_traffic
+from src.verify import token_verification_dependency
 
 from slowapi import Limiter
 from slowapi.util import get_remote_address
@@ -32,7 +32,7 @@ class GatheringRequest(BaseModel):
 @app.post(
     "/gather",
     summary="Start traffic gathering",
-    description="Gather the traffic into a PCAPG file.",
+    description="Gather the traffic into a PCAPG file and two CSV files.",
     response_description="Gathered data.",
     dependencies=[Depends(token_verification_dependency)]
 )

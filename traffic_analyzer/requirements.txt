@@ -1,0 +1,10 @@
+pandas
+scikit-learn
+fastapi
+uvicorn
+pydantic
+seaborn
+numpy
+matplotlib
+python-dotenv
+slowapi

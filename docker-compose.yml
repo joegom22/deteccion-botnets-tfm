@@ -9,3 +9,25 @@ services:
     network_mode: "host"
     privileged: true
     restart: always
+
+  traffic_analyzer:
+    build: ./traffic_analyzer
+    container_name: traffic_analyzer
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./shared:/app/shared
+    # Does not need host network mode, but standard
+    network_mode: "bridge"
+    restart: always
+
+  traffic_visualizer:
+    build: ./traffic_visualizer
+    container_name: traffic_visualizer
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./shared:/app/shared
+    # Does not need host network mode, but standard
+    network_mode: "bridge"
+    restart: always
