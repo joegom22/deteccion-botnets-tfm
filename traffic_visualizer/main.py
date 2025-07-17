@@ -1,46 +1,34 @@
-from fastapi import FastAPI, HTTPException, Request, Depends
-from pydantic import BaseModel, Field
-from src.visualize import visualize_analysis
-from src.verify import token_verification_dependency
+import os
+import streamlit as st
+import pandas as pd
+import plotly.express as px
 
-from slowapi import Limiter
-from slowapi.util import get_remote_address
-from slowapi.errors import RateLimitExceeded
-from fastapi.responses import JSONResponse
+st.set_page_config(page_title="IoT Botnet Analysis Visualization", layout="wide")
+st.title("Visualización de análisis de tráfico red IoT")
 
-limiter = Limiter(key_func=get_remote_address)
+csv_path = "/app/shared/predictions.csv"
 
-app = FastAPI(
-    title="IoT Traffic Visualization Service",
-    summary="Microservice for network traffic analysis visualization.",
-    description="""<p> This service visualizes the analysis results of network traffic from a JSON file. </p>""",
-    version="1.0.0"
-)
+if os.path.exists(csv_path):
+    df = pd.read_csv(csv_path)
 
-app.state.limiter = limiter
+    total = len(df)
+    botnets = (df['prediction'] == 1).sum()
+    st.metric("Total flujos", total)
+    st.metric("Botnets detectadas", botnets)
+    st.metric("Porcentaje", f"{(botnets / total) * 100:.2f}%")
 
-@app.exception_handler(RateLimitExceeded)
-def rate_limit_handler(request: Request, exc: RateLimitExceeded):
-    return JSONResponse(
-        status_code=429,
-        content={"detail": "Rate limit exceeded. Request blocked."}
-    )
+    counts = df['prediction'].value_counts().reset_index()
+    counts.columns = ['Clase', 'Frecuencia']
 
-class VisualizationRequest(BaseModel):
-    file_path: str = Field(description="File path to the CSV file", example="/app/shared/analysis.json")
+    fig = px.pie(counts, names='Clase', values='Frecuencia', title='Distribución del tráfico')
 
-@app.post(
-    "/visualize",
-    summary="Start traffic Visualization",
-    description="Visualize the JSON analysis data.",
-    response_description="Visualization.",
-    dependencies=[Depends(token_verification_dependency)]
-)
-@limiter.limit("1/minute")
-def visualize(request: Request, data: VisualizationRequest):
-    try:
-        result = visualize_analysis(data.file_path)
-        return {"status": "completed", "result": result}
-    
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    st.plotly_chart(fig)
+
+    st.subheader("Tabla de flujos clasificados")
+    st.dataframe(df)
+
+    st.subheader("Distribución de probabilidades")
+    st.bar_chart(df['probability'])
+
+else:
+    st.error(f"No se encontró el archivo: {csv_path}")

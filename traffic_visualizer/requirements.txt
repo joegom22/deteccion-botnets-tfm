@@ -1,7 +1,4 @@
-fastapi
-uvicorn
-jinja2
-python-multipart
-pydantic
-aiofiles
-itsdangerous
+streamlit
+pandas
+matplotlib
+plotly
