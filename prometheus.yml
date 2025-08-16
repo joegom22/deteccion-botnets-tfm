@@ -1,0 +1,13 @@
+global:
+  scrape_interval: 30s
+
+scrape_configs:
+  - job_name: 'traffic_gatherer'
+    static_configs:
+      - targets: ['traffic_gatherer:9000']
+    metrics_path: /metrics
+  
+  - job_name: 'traffic_analyzer'
+    static_configs:
+      - targets: ['traffic_analyzer:8000']
+    metrics_path: /metrics

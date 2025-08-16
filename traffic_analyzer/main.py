@@ -8,6 +8,8 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from fastapi.responses import JSONResponse
 
+from prometheus_fastapi_instrumentator import Instrumentator
+
 limiter = Limiter(key_func=get_remote_address)
 
 app = FastAPI(
@@ -44,3 +46,5 @@ def analyze(request: Request, data: AnalysisRequest):
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+Instrumentator().instrument(app).expose(app)
