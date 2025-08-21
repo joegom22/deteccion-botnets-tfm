@@ -5,3 +5,4 @@ requests
 pandas
 slowapi
 python-dotenv
+prometheus-fastapi-instrumentator

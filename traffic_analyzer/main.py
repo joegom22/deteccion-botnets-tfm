@@ -1,3 +1,5 @@
+import os
+import pandas as pd
 from fastapi import FastAPI, HTTPException, Request, Depends
 from pydantic import BaseModel, Field
 from src.analyze import analyze_traffic
@@ -9,6 +11,7 @@ from slowapi.errors import RateLimitExceeded
 from fastapi.responses import JSONResponse
 
 from prometheus_fastapi_instrumentator import Instrumentator
+from prometheus_client import Gauge
 
 limiter = Limiter(key_func=get_remote_address)
 
@@ -19,7 +22,18 @@ app = FastAPI(
     version="1.0.0"
 )
 
+Instrumentator().instrument(app).expose(app)
+
 app.state.limiter = limiter
+
+ANALYZER_CSV_FILES = Gauge(
+    "analyzer_csv_size",
+    "Tamaño en bytes del CSV generado por analyze_traffic."
+)
+ANALYZER_CSV_ROWS = Gauge(
+    "analyzer_csv_rows",
+    "Número de filas del CSV generado por analyze_traffic."
+)
 
 @app.exception_handler(RateLimitExceeded)
 def rate_limit_handler(request: Request, exc: RateLimitExceeded):
@@ -30,6 +44,26 @@ def rate_limit_handler(request: Request, exc: RateLimitExceeded):
 
 class AnalysisRequest(BaseModel):
     file_path: str = Field(description="File path to the CSV file", example="/app/shared/traffic_data.csv")
+
+def _count_csv_rows(file_path: str) -> int:
+    """
+    Counts the number of rows in a CSV file except header.
+
+    Args:
+        file_path (str): The path to the CSV file.
+    """
+    with open(file_path, "r") as f:
+        return sum(1 for _ in f) - 1
+
+def update_custom_metrics(file_path: str):
+    """
+    Updates the custom metrics for the gathered CSV files.
+
+    Args:
+        file_path (str): The path to the CSV file.
+    """
+    ANALYZER_CSV_FILES.labels("gather").set(os.path.getsize(file_path))
+    ANALYZER_CSV_ROWS.labels("gather").set(_count_csv_rows(file_path))
 
 @app.post(
     "/analyze",
@@ -42,9 +76,8 @@ class AnalysisRequest(BaseModel):
 def analyze(request: Request, data: AnalysisRequest):
     try:
         result = analyze_traffic(data.file_path)
+        update_custom_metrics(result["path"])
         return {"status": "completed", "result": result}
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-Instrumentator().instrument(app).expose(app)

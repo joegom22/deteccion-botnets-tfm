@@ -1,3 +1,5 @@
+import os
+import pandas as pd
 from src.DataProcessor import DataProcessor
 import pickle
 
@@ -12,7 +14,14 @@ def predict_data(data):
         model = pickle.load(f)
     
     predictions = model.predict(data)
-    return predictions
+
+    if hasattr(model, "predict_proba"):
+        probabilities = model.predict_proba(data)
+        probabilities = probabilities[:, 1]
+    else:
+        probabilities = [None] * len(predictions)
+
+    return predictions, probabilities
 
 def preprocess_data(file_path):
     """
@@ -41,5 +50,13 @@ def analyze_traffic(data):
         list: Predictions based on the input data.
     """
     preprocessed_data = preprocess_data(data)
-    predictions = predict_data(preprocessed_data)
-    return predictions
+    predictions, probabilities = predict_data(preprocessed_data)
+    # Write a identifier, the predictions and the probabilities into a CSV
+    ids = range(len(preprocessed_data))
+    results = pd.DataFrame({
+        "FlowID": ids,
+        "Prediction": predictions,
+        "Probability": probabilities
+    })
+    results.to_csv('/app/shared/predictions.csv', index=False)
+    return {"results": results, "path": "/app/shared/predictions.csv"}

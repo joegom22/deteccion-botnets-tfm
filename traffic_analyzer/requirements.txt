@@ -8,3 +8,5 @@ numpy
 matplotlib
 python-dotenv
 slowapi
+prometheus-fastapi-instrumentator
+pandas

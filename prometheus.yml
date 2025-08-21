@@ -6,6 +6,11 @@ scrape_configs:
     static_configs:
       - targets: ['traffic_gatherer:9000']
     metrics_path: /metrics
+
+  - job_name: 'traffic_visualizer'
+    static_configs:
+      - targets: ['traffic_visualizer:9100']
+    metrics_path: /metrics
   
   - job_name: 'traffic_analyzer'
     static_configs:
