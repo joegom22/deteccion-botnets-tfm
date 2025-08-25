@@ -52,5 +52,14 @@ class DataProcessor(BaseEstimator, TransformerMixin):
         return self.preprocessor.transform(X)
     
     def get_feature_names_out(self, input_features=None):
+        """
+        Get output feature names after transformation.
+
+        Args:
+            input_features (list, optional): List of input feature names.
+        
+        Returns:
+            list: List of output feature names.
+        """
         return self.preprocessor.get_feature_names_out(input_features)
 

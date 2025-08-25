@@ -21,6 +21,7 @@ def gather_traffic(duration: int) -> str:
         str: Path to the saved PCAP file.
     """
     command = [
+        "nsenter", "-t", "1", "-n",
         "timeout", f"{duration}s",
         "tshark",
         "-i", "wlo1",

@@ -1,7 +1,12 @@
 FROM python:3.10-slim
 
 WORKDIR /gatherer
-RUN apt-get update && apt-get install -y tshark
+RUN apt-get update && apt-get install -y \
+    tshark \
+    iproute2 \
+    util-linux \
+    coreutils \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY . .
 

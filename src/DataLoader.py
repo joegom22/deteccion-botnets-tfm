@@ -37,11 +37,11 @@ class DataLoader:
             ValueError: If the provided file type is unsupported.
         """
         if file_type == "csv":
-            self._load_csv(file_path)
+            df = self._load_csv(file_path)
         elif file_type == "zeek":
             df = self._load_zeek(file_path)
         elif file_type == "txt":
-            self._load_pcapg(file_path)
+            df = self._load_pcapg(file_path)
         else:
             raise ValueError(f"Unsupported file type: {file_type}")
 
@@ -54,8 +54,10 @@ class DataLoader:
         Args:
             file_path (str): The path to the CSV file to be loaded.
         """
+        df = None
         try:
-            df = pd.read_csv(file_path, header=None, low_memory=False)
+            # first row as header
+            df = pd.read_csv(file_path, header=0, low_memory=False)
             df = df.drop(df.columns[0], axis=1)
             self.logger.info(f"CSV file loaded successfully: {df.head()}")
         except Exception as e:
@@ -72,6 +74,7 @@ class DataLoader:
         Args:
             file_path (str): The path to the PCAPG-formatted TXT file to be loaded.
         """
+        df = None
         try:
             df = pd.read_csv(file_path, sep=",", header=0, low_memory=False)
             self.logger.info(f"PCAPG-formatted file sampled successfully: {df.shape[0]} rows, {df.shape[1]} columns.")
@@ -95,6 +98,7 @@ class DataLoader:
         Returns:
             pd.DataFrame: DataFrame containing the processed Zeek log data.
         """
+        df = None
         try:
             separator = "\x09"
             empty_field = "(empty)"
