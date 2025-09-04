@@ -1,7 +1,9 @@
-import subprocess
-from datetime import datetime
 import os
 import logging
+import subprocess
+
+from datetime import datetime
+
 from src.process import process_tshark_output, create_flows
 
 
@@ -30,15 +32,15 @@ def gather_traffic(duration: int) -> str:
 
     os.chmod(OUTPUT_DIR, 0o777)  
 
-    logger.info(f"Iniciando captura de tráfico durante {duration} segundos...")
+    logger.info(f"Starting traffic gathering for {duration} seconds...")
     proc = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     if proc.returncode not in (0, 124):
-        logger.error(f"tshark falló con código {proc.returncode}")
+        logger.error(f"tshark failed: code {proc.returncode}")
         logger.error(proc.stderr.decode())
-        raise RuntimeError(f"tcpdump falló: código {proc.returncode}")
+        raise RuntimeError(f"tcpdump failed: code {proc.returncode}")
     else:
-        logger.info("tshark terminó correctamente (timeout o éxito)")
+        logger.info("tshark finished successfully (timeout or success)")
         logger.info(proc.stderr.decode())
     files = [pcap_file]
     os.chmod(pcap_file, 0o777)
@@ -51,5 +53,7 @@ def gather_traffic(duration: int) -> str:
     path = process_tshark_output(path)
     files.append(path)
     os.chmod(path, 0o777)
+
+    logger.info("Traffic gathering and processing completed.")
 
     return files

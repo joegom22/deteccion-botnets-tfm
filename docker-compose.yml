@@ -14,6 +14,7 @@ services:
       - NET_ADMIN
       - NET_RAW
     networks: [botnetdetection]
+    pid: "host"
     privileged: true
     restart: always
 
@@ -32,7 +33,7 @@ services:
     container_name: traffic_visualizer
     ports:
       - "5000:5000"
-      - "9100:9100"  # Prometheus metrics port
+      - "9100:9100"  # Extra Prometheus metrics port
     volumes:
       - ./shared:/app/shared
     networks: [botnetdetection]

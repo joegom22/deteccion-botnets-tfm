@@ -1,13 +1,12 @@
+import os
+import logging
 import subprocess
 import pandas as pd
 import socket
 import struct
-import logging
-import os
 
 logger = logging.getLogger("uvicorn")
 
-from collections import defaultdict
 OUTPUT_DIR = "/app/shared"
 
 def int_to_ip(ip):
@@ -40,6 +39,10 @@ def create_flows(pcap_file):
             "-e", "frame.time_epoch",
             "-e", "ip.src",
             "-e", "ip.dst",
+            "-e", "tcp.srcport",
+            "-e", "tcp.dstport",
+            "-e", "udp.srcport",
+            "-e", "udp.dstport",
             "-e", "ip.proto",
             "-e", "frame.len",
             "-Y", "ip"
@@ -59,8 +62,17 @@ def process_tshark_output(tshark_output):
     Returns:
         list: A list of dictionaries containing the extracted information.
     """
-    df = pd.read_csv(tshark_output, names=["timestamp", "source", "destination", "protocol", "bytes"], header=None, on_bad_lines='skip')
+    df = pd.read_csv(
+        tshark_output,
+        names=["timestamp", "src_ip", "dst_ip", "tcp_srcport", "tcp_dstport", "udp_srcport", "udp_dstport", "protocol", "bytes"],
+        header=None,
+        on_bad_lines='skip'
+    )
+
     logger.info("Processing tshark output...")
+    df["src_port"] = df["tcp_srcport"].fillna(df["udp_srcport"])
+    df["dst_port"] = df["tcp_dstport"].fillna(df["udp_dstport"])
+    df.drop(columns=["tcp_srcport", "tcp_dstport", "udp_srcport", "udp_dstport"], inplace=True)
 
     # Tshark protocol mapping from integer to string
     protocol_mapping = {
@@ -83,21 +95,20 @@ def process_tshark_output(tshark_output):
     df['protocol'] = df['protocol'].apply(lambda x: protocol_mapping.get(int(x), f"Unknown Protocol Codification: {x}"))
     
     # Convert int ips to dotted notation
-    df['source'] = df['source'].apply(int_to_ip)
-    df['destination'] = df['destination'].apply(int_to_ip)
+    df['src_ip'] = df['src_ip'].apply(int_to_ip)
+    df['dst_ip'] = df['dst_ip'].apply(int_to_ip)
 
     # Convert timestamp to datetime
     df['timestamp'] = pd.to_datetime(df['timestamp'], unit='s')
     logger.info("Converted timestamps and IPs to human-readable format.")
 
-    # We want to get the flows from every pair of source and destination IPs, with the protocol and bytes transferred as well as the median 
-    # interval between packets.
+    # We want to get the flows from every pair of source and destination IPs and ports, with the protocol and bytes transferred as well as the flow duration.
     logger.info("Grouping conversations by source, destination, and protocol...")
     grouped_dfs = {}
-    
-    for group_key, group_df in df.groupby(['source', 'destination', 'protocol']):
+
+    for group_key, group_df in df.groupby(['src_ip', 'dst_ip', 'src_port', 'dst_port', 'protocol']):
         group_df_sorted = group_df.sort_values(by=['timestamp']).reset_index(drop=True)
-        
+
         grouped_dfs[group_key] = group_df_sorted
     logger.info(f"Grouped conversations into {len(grouped_dfs)} unique pairs of source and destination IPs.")
     grouped_dfs = {k: v for k, v in grouped_dfs.items() if len(v) > 1}
@@ -106,7 +117,7 @@ def process_tshark_output(tshark_output):
     time_threshold = 30
     total_flows = []
     flows_summary = []
-    for (src, dst, proto), group_df in grouped_dfs.items():
+    for (src, dst, src_port, dst_port, proto), group_df in grouped_dfs.items():
         flows = []
         segment = [group_df.iloc[0]]
         for i in range(1, len(group_df)):
@@ -126,14 +137,17 @@ def process_tshark_output(tshark_output):
     
         for flow in flows:
             flow = flow.copy()
-            flow["iat"] = flow["timestamp"].diff().dt.total_seconds().fillna(0)
             flows_summary.append({
                 "src_ip": src,
                 "dst_ip": dst,
+                "src_port": src_port,
+                "dst_port": dst_port,
                 "protocol": proto,
-                "num_packets": len(flow),
-                "bytes_total": flow["bytes"].sum(),
-                "iat_median": round(flow["iat"].median(), 5)
+                "num_packets_src": (flow["src_ip"] == src).sum(),
+                "num_packets_dst": (flow["dst_ip"] == dst).sum(),
+                "bytes_src": flow.loc[flow["src_ip"] == src, "bytes"].sum(),
+                "bytes_dst": flow.loc[flow["dst_ip"] == dst, "bytes"].sum(),
+                "duration": (flow["timestamp"].max() - flow["timestamp"].min()).total_seconds()
             })
     
     logger.info(f"Processed {len(total_flows)} flows with {len(flows_summary)} summary entries.")

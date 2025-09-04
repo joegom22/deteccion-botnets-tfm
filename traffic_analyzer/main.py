@@ -1,14 +1,15 @@
 import os
-import pandas as pd
 from fastapi import FastAPI, HTTPException, Request, Depends
+from fastapi.responses import JSONResponse
+
 from pydantic import BaseModel, Field
+
 from src.analyze import analyze_traffic
 from src.verify import token_verification_dependency
 
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
-from fastapi.responses import JSONResponse
 
 from prometheus_fastapi_instrumentator import Instrumentator
 from prometheus_client import Gauge
@@ -44,6 +45,7 @@ def rate_limit_handler(request: Request, exc: RateLimitExceeded):
 
 class AnalysisRequest(BaseModel):
     file_path: str = Field(description="File path to the CSV file", example="/app/shared/traffic_data.csv")
+    model: str = Field(description="Machine learning model to use", example="XGBoost")
 
 def _count_csv_rows(file_path: str) -> int:
     """
@@ -62,8 +64,8 @@ def update_custom_metrics(file_path: str):
     Args:
         file_path (str): The path to the CSV file.
     """
-    ANALYZER_CSV_FILES.labels("gather").set(os.path.getsize(file_path))
-    ANALYZER_CSV_ROWS.labels("gather").set(_count_csv_rows(file_path))
+    ANALYZER_CSV_FILES.set(os.path.getsize(file_path))
+    ANALYZER_CSV_ROWS.set(_count_csv_rows(file_path))
 
 @app.post(
     "/analyze",
@@ -74,8 +76,15 @@ def update_custom_metrics(file_path: str):
 )
 @limiter.limit("1/minute")
 def analyze(request: Request, data: AnalysisRequest):
+    """
+    Start the traffic analysis process.
+
+    Args:
+        request (Request): The FastAPI request object.
+        data (AnalysisRequest): The request body containing the analysis parameters.
+    """
     try:
-        result = analyze_traffic(data.file_path)
+        result = analyze_traffic(data.file_path, data.model)
         update_custom_metrics(result["path"])
         return {"status": "completed", "result": result}
     

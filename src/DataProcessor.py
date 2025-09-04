@@ -3,11 +3,13 @@ from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.impute import SimpleImputer
+import pandas as pd
 
 class DataProcessor(BaseEstimator, TransformerMixin):
     def __init__(self, num_cols=None, cat_cols=None):
         """
         Initialize the DataProcessor with numerical and categorical columns.
+        
         Args:
             num_cols (list): List of numerical column names.
             cat_cols (list): List of categorical column names.
@@ -28,11 +30,11 @@ class DataProcessor(BaseEstimator, TransformerMixin):
         """
         self.preprocessor = ColumnTransformer([
             ("num", Pipeline([
-                ("imputer", SimpleImputer(strategy="constant", fill_value=0)),
+                ("imputer", SimpleImputer(strategy="constant", fill_value=0, missing_values=pd.NA)),
                 ("scaler", StandardScaler())
             ]), self.num_cols),
             ("cat", Pipeline([
-                ("imputer", SimpleImputer(strategy="most_frequent")),
+                ("imputer", SimpleImputer(strategy="most_frequent", missing_values=pd.NA)),
                 ("onehot", OneHotEncoder(handle_unknown="ignore"))
             ]), self.cat_cols)
         ])

@@ -23,12 +23,12 @@ if os.path.exists(csv_path):
     df = pd.read_csv(csv_path)
 
     total = len(df)
-    botnets = (df['prediction'] == 1).sum()
+    botnets = (df['Prediction'] == 1).sum()
     st.metric("Total flujos", total)
     st.metric("Botnets detectadas", botnets)
     st.metric("Porcentaje", f"{(botnets / total) * 100:.2f}%")
 
-    counts = df['prediction'].value_counts().reset_index()
+    counts = df['Prediction'].value_counts().reset_index()
     counts.columns = ['Clase', 'Frecuencia']
 
     fig = px.pie(counts, names='Clase', values='Frecuencia', title='Distribución del tráfico')
@@ -39,7 +39,7 @@ if os.path.exists(csv_path):
     st.dataframe(df)
 
     st.subheader("Distribución de probabilidades")
-    st.bar_chart(df['probability'])
+    st.bar_chart(df['Probability'])
 
     st.session_state.dashboard_gauge.set(1)
 else:

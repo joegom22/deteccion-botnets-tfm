@@ -1,62 +1,42 @@
 import os
+import joblib
 import pandas as pd
-from src.DataProcessor import DataProcessor
-import pickle
+from src.DataLoader import DataLoader
 
-def predict_data(data):
+MODEL_PATHS = {
+    "XGBoost": "./pipelines/pipeline_xgboost.sav",
+    "MLP": "./pipelines/pipeline_mlp.sav"
+}
+
+def load_pipeline(model_name):
     """
-    Load Pickle model and return predictions.
-
-    Args:
-        data (list): Preprocessed traffic data for analysis.
-    """    
-    with open('./models/model.pkl', 'rb') as f:
-        model = pickle.load(f)
+    Carga la pipeline entrenada.
     
-    predictions = model.predict(data)
-
-    if hasattr(model, "predict_proba"):
-        probabilities = model.predict_proba(data)
-        probabilities = probabilities[:, 1]
-    else:
-        probabilities = [None] * len(predictions)
-
-    return predictions, probabilities
-
-def preprocess_data(file_path):
-    """
-    Preprocess the input data for prediction.
-
     Args:
-        file_path (str): Path to the dataset file.
-    
-    Returns:
-        DataFrame: Preprocessed data ready for prediction.
+        model_name (str): The name of the model to load.
     """
-    data_processor = DataProcessor(file_path=file_path)
-    data_processor.clean_dataset()
-    data_processor.normalize_columns()
-    data_processor.onehot_encode_columns()
-    return data_processor.df
+    return joblib.load(MODEL_PATHS[model_name])
 
-def analyze_traffic(data):
+def analyze_traffic(data, model):
     """
     Analyze traffic data and return predictions.
 
     Args:
         data (list): Raw traffic data to be analyzed.
+        model (str): The machine learning model to use for analysis.
     
     Returns:
         list: Predictions based on the input data.
     """
-    preprocessed_data = preprocess_data(data)
-    predictions, probabilities = predict_data(preprocessed_data)
-    # Write a identifier, the predictions and the probabilities into a CSV
-    ids = range(len(preprocessed_data))
+    loader = DataLoader()
+    df = loader.load_dataset(data, "csv")
+    model_pipeline = load_pipeline(model)
+    predictions = model_pipeline.predict(df)
+    probabilities = model_pipeline.predict_proba(df)[:, 1]
     results = pd.DataFrame({
-        "FlowID": ids,
+        "FlowID": range(len(df)),
         "Prediction": predictions,
         "Probability": probabilities
     })
-    results.to_csv('/app/shared/predictions.csv', index=False)
-    return {"results": results, "path": "/app/shared/predictions.csv"}
+    results.to_csv('/app/shared/predictions.csv')
+    return {"path": "/app/shared/predictions.csv"}

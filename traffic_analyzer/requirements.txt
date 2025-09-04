@@ -3,10 +3,8 @@ scikit-learn
 fastapi
 uvicorn
 pydantic
-seaborn
 numpy
-matplotlib
 python-dotenv
 slowapi
 prometheus-fastapi-instrumentator
-pandas
+xgboost

@@ -1,18 +1,23 @@
 import os
+import logging
+
 from fastapi import FastAPI, HTTPException, Request, Depends
+from fastapi.responses import JSONResponse
+
 from pydantic import BaseModel, Field
+
 from src.gather import gather_traffic
 from src.verify import token_verification_dependency
 
 from slowapi import Limiter
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
-from fastapi.responses import JSONResponse
 
 from prometheus_fastapi_instrumentator import Instrumentator
 from prometheus_client import Gauge
 
 limiter = Limiter(key_func=get_remote_address)
+logger = logging.getLogger("uvicorn")
 
 app = FastAPI(
     title="IoT Traffic Gathering Service",
@@ -52,6 +57,9 @@ def _count_csv_rows(file_path: str) -> int:
         file_path (str): The path to the CSV file.
     """
     with open(file_path, "r") as f:
+        if not f.readline():
+            logger.warning(f"File is empty: {file_path}")
+            return 0
         return sum(1 for _ in f) - 1
 
 def update_custom_metrics(file_path: str):
@@ -61,8 +69,10 @@ def update_custom_metrics(file_path: str):
     Args:
         file_path (str): The path to the CSV file.
     """
-    GATHERER_CSV_FILES.labels("gather").set(os.path.getsize(file_path))
-    GATHERER_CSV_ROWS.labels("gather").set(_count_csv_rows(file_path))
+    if not os.path.isfile(file_path):
+        logger.warning(f"File not found: {file_path}")
+    GATHERER_CSV_FILES.set(os.path.getsize(file_path))
+    GATHERER_CSV_ROWS.set(_count_csv_rows(file_path))
 
 @app.post(
     "/gather",
@@ -73,6 +83,13 @@ def update_custom_metrics(file_path: str):
 )
 @limiter.limit("1/minute")
 def gather(request: Request, data: GatheringRequest):
+    """
+    Starts the traffic gathering process.
+
+    Args:
+        request (Request): The FastAPI request object.
+        data (GatheringRequest): The request body containing the gathering parameters.
+    """
     try:
         result = gather_traffic(data.duration)
         update_custom_metrics(result[-1])

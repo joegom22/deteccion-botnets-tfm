@@ -1,9 +1,6 @@
 <h1 align="center">Microservice: Traffic Gatherer</h1>
 
-<p align="center"> Microservicio que expone una API HTTP para capturar tráfico de red durante un periodo de tiempo definido y.
-  <br>
-  Guarda el resultado como archivo `.pcap` en un volumen compartido para su posterior análisis. Además, procesa flujos conversacionales en el tráfico
-  y genera archivos csv con los flujos.
+<p align="center"> Microservicio que expone una API HTTP para capturar tráfico de red durante un periodo de tiempo definido y guarda el resultado como archivo `.pcap` en un volumen compartido para su posterior análisis. Además, procesa flujos conversacionales en el tráfico y genera archivos CSV con los flujos.
 </p>
 
 ## 📝 Table of Contents
@@ -53,7 +50,10 @@ Este servicio se integra con otros microservicios mediante Docker Compose.
 
 Para iniciar la captura se envía una solicitud HTTP.
 ```
-curl -X POST "http://localhost:9000/gather?duration=30"
+curl -X POST http://localhost:9000/gather \
+     -H "Content-Type: application/json" \
+     -H "x-token: DUMMY_TOKEN" \
+     -d '{"duration": 30}'
 ```
 Donde el parámetro duration debe ser la cantidad de tiempo en segundos durante los que se recolectará el tráfico.
 
@@ -68,6 +68,8 @@ Donde el parámetro duration debe ser la cantidad de tiempo en segundos durante 
 - Docker – Containerización y despliegue
 
 - Python 3.10 – Lenguaje base
+
+- Prometheus - Recogida de métricas
 
 ## ✍️ Authors <a name = "authors"></a>
 
