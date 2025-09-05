@@ -8,7 +8,6 @@
 - [About](#about)
 - [Getting Started](#getting_started)
 - [Deployment](#deployment)
-- [Usage](#usage)
 - [Built Using](#built_using)
 - [Authors](#authors)
 
@@ -46,17 +45,6 @@ Para poder tener todo el sistema operativo deben seguirse los siguientes pasos: 
 
 Este servicio se integra con otros microservicios mediante Docker Compose.
 
-## Usage <a name="usage"></a>
-
-Para iniciar la captura se envía una solicitud HTTP.
-```
-curl -X POST http://localhost:9000/gather \
-     -H "Content-Type: application/json" \
-     -H "x-token: DUMMY_TOKEN" \
-     -d '{"duration": 30}'
-```
-Donde el parámetro duration debe ser la cantidad de tiempo en segundos durante los que se recolectará el tráfico.
-
 ## Built Using <a name = "built_using"></a>
 
 - Docker – Containerización y despliegue
@@ -68,3 +56,4 @@ Donde el parámetro duration debe ser la cantidad de tiempo en segundos durante 
 ## Authors <a name = "authors"></a>
 
 - [@joegom22](https://github.com/joegom22)
+
