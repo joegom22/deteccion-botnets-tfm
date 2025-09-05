@@ -3,7 +3,7 @@
 <p align="center"> Microservicio que expone un Dashboard de Streamlit en el que se presentan los resultados de la predicción realizada y almacenada en un archivo CSV.
 </p>
 
-## 📝 Table of Contents
+## Table of Contents
 
 - [About](#about)
 - [Getting Started](#getting_started)
@@ -12,13 +12,13 @@
 - [Built Using](#built_using)
 - [Authors](#authors)
 
-## 🧐 About <a name = "about"></a>
+## About <a name = "about"></a>
 
 **Traffic Visualizer** es un microservicio desarrollado como parte de un sistema de detección de botnets en redes IoT. Este permite visualizar datos sobre predicciones que se encuentren almacenadas en el sistema. Su diseño dockerizado permite que se integre fácilmente con otros dispositivos.
 
 Este componente representaría el último paso de la pipeline de detección de botnets en redes IoT.
 
-## 🏁 Getting Started <a name = "getting_started"></a>
+## Getting Started <a name = "getting_started"></a>
 
 Estas instrucciones te permitirán desplegar el servicio de forma local o como parte de un sistema basado en Docker Compose.
 
@@ -42,11 +42,11 @@ Para poder tener todo el sistema operativo deben seguirse los siguientes pasos: 
 2. Crea un volumen compartido si no existe
 3. Docker compose up --build
 
-## 🚀 Deployment <a name = "deployment"></a>
+## Deployment <a name = "deployment"></a>
 
 Este servicio se integra con otros microservicios mediante Docker Compose.
 
-## 🎈 Usage <a name="usage"></a>
+## Usage <a name="usage"></a>
 
 Para iniciar la captura se envía una solicitud HTTP.
 ```
@@ -57,7 +57,7 @@ curl -X POST http://localhost:9000/gather \
 ```
 Donde el parámetro duration debe ser la cantidad de tiempo en segundos durante los que se recolectará el tráfico.
 
-## ⛏️ Built Using <a name = "built_using"></a>
+## Built Using <a name = "built_using"></a>
 
 - Docker – Containerización y despliegue
 
@@ -65,6 +65,6 @@ Donde el parámetro duration debe ser la cantidad de tiempo en segundos durante 
 
 - Prometheus - Recogida de métricas
 
-## ✍️ Authors <a name = "authors"></a>
+## Authors <a name = "authors"></a>
 
 - [@joegom22](https://github.com/joegom22)
